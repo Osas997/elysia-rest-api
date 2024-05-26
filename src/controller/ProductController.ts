@@ -1,16 +1,5 @@
 import prisma from "../../prisma/client";
-
-interface Response {
-  success: boolean;
-  message?: string | unknown;
-  data?: any;
-}
-
-interface ProductBody {
-  name: string;
-  price: number;
-  id_category: number;
-}
+import { ProductBody, Response } from "../Interface";
 
 export const getProducts = async (search?: string): Promise<Response> => {
   try {
@@ -63,16 +52,31 @@ export const getProductById = async (id: string): Promise<Response> => {
 };
 
 export const createProduct = async (body: ProductBody): Promise<Response> => {
-  const { name, price, id_category } = body;
+  const { name, price, id_category, image } = body;
 
   try {
+    let path: string | undefined;
+
+    if (image) {
+      const fileName = `image-${Date.now()}-${Math.round(
+        Math.random() * 1e9
+      )}.jpg`;
+      path = `./public/images/${fileName}`;
+      await Bun.write(path, image);
+    }
+
     const product = await prisma.product.create({
-      data: { name, price, id_category },
+      data: {
+        image: path,
+        name,
+        price,
+        id_category,
+      },
     });
 
     return { success: true, data: product };
   } catch (e: unknown) {
-    console.log(e);
+    // console.log(e);
     return { success: false, message: e };
   }
 };

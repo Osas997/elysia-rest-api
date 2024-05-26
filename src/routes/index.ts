@@ -6,8 +6,9 @@ import {
   getProducts,
   updateProduct,
 } from "../controller/ProductController";
+import { itRoute } from "../Interface";
 
-const route = new Elysia({ prefix: "/api" })
+const Route: itRoute = new Elysia()
   .get("/products", ({ query: { search } }) => getProducts(search))
   .get("/products/:id", ({ params: { id } }) => getProductById(id))
   .post("/products", ({ body }) => createProduct(body), {
@@ -18,7 +19,11 @@ const route = new Elysia({ prefix: "/api" })
           message: "price harus berupa angka",
         },
       }),
-      id_category: t.Number(),
+      id_category: t.Numeric(),
+      image: t.File({
+        type: "image",
+        maxSize: 1024 * 1024 * 5,
+      }),
     }),
   })
   .put("/products/:id", ({ params: { id }, body }) => updateProduct(id, body), {
@@ -34,4 +39,4 @@ const route = new Elysia({ prefix: "/api" })
   })
   .delete("/products/:id", ({ params: { id } }) => deleteProduct(id));
 
-export default route;
+export default Route;
